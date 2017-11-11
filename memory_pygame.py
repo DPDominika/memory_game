@@ -3,7 +3,7 @@ import os
 import pygame as pg
 import memory_engine as engine
 
-def calc_card_size(pair_count):
+def calc_card_size(pair_count): #przenieść do silnika?
     if len(pair_count) <= 9:
         return 200
     return 100
@@ -14,7 +14,7 @@ START_POINT = 5
 SCORE_LINE = 20
 all_divisors = engine.calc_all_divisors(pair_count)
 unique_divisors = engine.calc_pair_divisors(all_divisors)
-DISPLAY_WIDTH = engine.calc_board_lenght(unique_divisors) * CARD_SIZE + ((engine.calc_board_lenght(unique_divisors)+1) * START_POINT)
+DISPLAY_WIDTH = engine.calc_board_lenght(unique_divisors) * CARD_SIZE + ((engine.calc_board_lenght(unique_divisors)+1) * START_POINT) #to już nie są stałe, tylko zmienne
 DISPLAY_HEIGHT = engine.calc_board_size(unique_divisors) * CARD_SIZE + ((engine.calc_board_size(unique_divisors)+1) * START_POINT + SCORE_LINE)
 
 
@@ -63,7 +63,7 @@ def load_resources(keys_list, images_list):
     images = {}
     resources = {}
     for key, image in zip(keys_list, images_list):
-        images[key] = normalize_image(pg.image.load('images/'+ image)) # W TYM MOMENCIE CHYBA ŁADUJE SIĘ CAŁY CZAS TA SAMA KARTA"
+        images[key] = normalize_image(pg.image.load('images/'+ image))
     resources['images'] = images
     resources['cov_card'] = {'covered_card': normalize_image(pg.image.load('covered_card/img1.jpg'))}
     resources['sound'] = {'song1': pg.mixer.Sound('music/applause.wav')}
@@ -74,7 +74,7 @@ def load_dark_resources(dark_keys, dark_img_list):
     dark_images = {}
     dark_resources = {}
     for key, image in zip(dark_keys, dark_img_list):
-        dark_images[key] = normalize_image(pg.image.load('dark_images/'+ image)) # W TYM MOMENCIE CHYBA ŁADUJE SIĘ CAŁY CZAS TA SAMA KARTA"
+        dark_images[key] = normalize_image(pg.image.load('dark_images/'+ image))
     dark_resources['images'] = dark_images
     return dark_resources
 

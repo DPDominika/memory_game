@@ -37,7 +37,6 @@ class TestMemory(unittest.TestCase):
         unique_divisors = calc_pair_divisors(all_divisors)
         self.assertEqual(calc_board_lenght(unique_divisors) * calc_board_size(unique_divisors), len(pair_count) * 2)
 
-
     def test_click_good_pair(self):
         pair_count = calc_pair_count()
         all_divisors = calc_all_divisors(pair_count)
@@ -68,7 +67,6 @@ class TestMemory(unittest.TestCase):
         on_card_clicked(game, board, lenght, size, row=1, col=1)
         self.assertEqual(count_showed_cards(game), 1)
 
-
     def test_if_game_is_finished(self):
         pair_count = calc_pair_count()
         all_divisors = calc_all_divisors(pair_count)
@@ -91,7 +89,6 @@ class TestMemory(unittest.TestCase):
         on_card_clicked(game, board, lenght, size, row=2, col=3)
         self.assertTrue(all_card_showed(game, lenght, size), True)
 
-
     def test_check_attempts_amount(self):
         pair_count = calc_pair_count()
         all_divisors = calc_all_divisors(pair_count)
@@ -109,7 +106,6 @@ class TestMemory(unittest.TestCase):
         self.assertEqual(game['attempts'], 1)
         on_card_clicked(game, board, lenght, size, row=1, col=3)
         self.assertEqual(game['attempts'], 2)
-
 
     def test_which_card_showed(self):
         pair_count = calc_pair_count()
@@ -133,12 +129,10 @@ class TestMemory(unittest.TestCase):
         self.assertEqual(board[1][2], {'value': 0, 'showed': True})
         self.assertEqual(board[2][2], {'value': 4, 'showed': True})
 
-
     def test_random_board(self):
         board_1 = run_board_default()
         board_2 = run_board_default()
         self.assertNotEqual(get_board_values(board_1) != get_board_values(board_2), False)
-
 
     def test_time_measure(self):
         pair_count = calc_pair_count()
