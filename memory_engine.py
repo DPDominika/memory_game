@@ -1,11 +1,9 @@
-import os
 from random import shuffle
 from datetime import datetime
 import helpers as helper
 
 
 card_list = helper.get_cards()
-card_size = helper.calc_card_size(card_list)
 all_divisors = helper.calc_all_divisors(card_list)
 unique_divisors = helper.calc_pair_divisors(all_divisors)
 

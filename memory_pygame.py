@@ -5,7 +5,7 @@ import memory_engine as engine
 import helpers as helper
 
 display_width, display_height = helper.calc_board_size_pixels()
-display_rows = (display_width, display_height)
+display_size = (display_width, display_height)
 card_list = helper.get_cards()
 card_size = helper.calc_card_size(card_list)
 
@@ -37,7 +37,7 @@ def prepare_resources():
 
 
 def prepare_dark_resources():
-    directory = "resources/images/"
+    directory = "resources/dark_images/"
     dark_img_list = []
     dark_keys = []
     for file in os.listdir(directory):
@@ -95,7 +95,7 @@ def run_game(resources, dark_resources, images_res, dark_images_res):
     game = engine.create_game(board)
     draw_attempts = attempts(game)
     draw_text(game_display, ATTEMPTS, 18, 50, 5)
-    board_view = make_board_view(board, display_rows, images_res, dark_images_res)
+    board_view = make_board_view(board, display_size, images_res, dark_images_res)
     input_data = {'exit': False}
 
     while not input_data['exit']:
