@@ -25,24 +25,23 @@ def calc_all_divisors(card_list):
 
 
 def calc_pair_divisors(all_divisors):
-    unique_divisors = all_divisors[:]
-    while len(unique_divisors) > 2:
-        max_value = max(unique_divisors)
-        min_value = min(unique_divisors)
-        unique_divisors.remove(max_value)
-        unique_divisors.remove(min_value)
-        if len(unique_divisors) == 1:
-            return 2*unique_divisors
-        elif len(unique_divisors) == 2:
-            return unique_divisors
+    size = len(all_divisors)
+    if size % 2 == 0:
+        return all_divisors[size // 2-1: size // 2+1]
+    else:
+        return all_divisors[size // 2]
 
 
-def calc_board_columns(unique_divisors):
-    return max(unique_divisors)
+def calc_board_columns(col_rows):
+    if type(col_rows) == int:
+        return col_rows
+    return max(col_rows)
 
 
-def calc_board_rows(unique_divisors):
-    return min(unique_divisors)
+def calc_board_rows(col_rows):
+    if type(col_rows) == int:
+        return col_rows
+    return min(col_rows)
 
 
 def calc_card_size(card_list):
@@ -55,8 +54,10 @@ def calc_board_size_pixels():
     card_list = get_cards()
     card_size = calc_card_size(card_list)
     all_divisors = calc_all_divisors(card_list)
-    unique_divisors = calc_pair_divisors(all_divisors)
-    display_width = calc_board_columns(unique_divisors) * card_size + ((calc_board_columns(unique_divisors)+1) * START_POINT)
-    display_height = calc_board_rows(unique_divisors) * card_size + ((calc_board_rows(unique_divisors)+1) * START_POINT + SCORE_LINE)
+    col_rows = calc_pair_divisors(all_divisors)
+    display_width = calc_board_columns(col_rows) * card_size + ((calc_board_columns(col_rows)+1) * START_POINT)
+    display_height = calc_board_rows(col_rows) * card_size + ((calc_board_rows(col_rows)+1) * START_POINT + SCORE_LINE)
     return display_width, display_height
 
+card_list = get_cards()
+print(calc_all_divisors(card_list))
