@@ -59,5 +59,3 @@ def calc_board_size_pixels():
     display_height = calc_board_rows(col_rows) * card_size + ((calc_board_rows(col_rows)+1) * START_POINT + SCORE_LINE)
     return display_width, display_height
 
-card_list = get_cards()
-print(calc_all_divisors(card_list))

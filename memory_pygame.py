@@ -19,9 +19,35 @@ BLUE = (0, 0, 255)
 
 font_name = pg.font.match_font('arial')
 ATTEMPTS = 'attempts: '
+TIMER = 'time: '
 
 GAME_OVER = 0
 CONTINUE_GAME = 1
+
+
+def avg(values):
+    return sum(values) / len(values)
+
+
+def avg_gray(color):
+    r, g, b, a = color
+    rgb = (r, g, b)
+    channel = int(avg(rgb))
+    return channel, channel, channel, a
+
+
+def grayscaled(img, method=avg_gray):
+    """Returns grayscaled image"""
+    width, height = img.get_size()
+    s = pg.Surface((width, height))
+    for x in range(width):
+        for y in range(height):
+            pos = (x, y)
+            color = img.get_at(pos)
+            gray = method(color)
+            s.set_at(pos, gray)
+    return s
+
 
 def prepare_resources():
     directory = "resources/images/"
@@ -36,19 +62,6 @@ def prepare_resources():
     return keys_list, images_list
 
 
-def prepare_dark_resources():
-    directory = "resources/dark_images/"
-    dark_img_list = []
-    dark_keys = []
-    for file in os.listdir(directory):
-        if os.path.splitext(file)[1] == '.jpg' and os.path.splitext(file)[0].startswith("img"):
-            dark_keys.append(os.path.splitext(file)[0])
-            dark_img_list.append(os.path.join(file))
-            dark_keys.sort()
-            dark_img_list.sort()
-    return dark_keys, dark_img_list
-
-
 def load_resources(keys_list, images_list):
     images = {}
     resources = {}
@@ -60,15 +73,6 @@ def load_resources(keys_list, images_list):
     return resources
 
 
-def load_dark_resources(dark_keys, dark_img_list):
-    dark_images = {}
-    dark_resources = {}
-    for key, image in zip(dark_keys, dark_img_list):
-        dark_images[key] = normalize_image(pg.image.load('resources/dark_images/'+ image))
-    dark_resources['images'] = dark_images
-    return dark_resources
-
-
 def make_images(resources, keys_list):
     images = []
     for key in keys_list:
@@ -76,14 +80,7 @@ def make_images(resources, keys_list):
     return dict(enumerate(images))
 
 
-def make_dark_images(dark_resources, dark_keys):
-    dark_images = []
-    for key in dark_keys:
-        dark_images.append(dark_resources['images'][key])
-    return dict(enumerate(dark_images))
-
-
-def run_game(resources, dark_resources, images_res, dark_images_res):
+def run_game(resources, images_res):
     pg.display.set_caption("Memory game")
     game_display = pg.display.set_mode((display_width, display_height))
     all_divisors = helper.calc_all_divisors(card_list)
@@ -93,9 +90,7 @@ def run_game(resources, dark_resources, images_res, dark_images_res):
     board = engine.run_board_default()
     clock = pg.time.Clock()
     game = engine.create_game(board)
-    draw_attempts = attempts(game)
-    draw_text(game_display, ATTEMPTS, 18, 50, 5)
-    board_view = make_board_view(board, display_size, images_res, dark_images_res)
+    board_view = make_board_view(board, display_size, images_res)
     input_data = {'exit': False}
 
     while not input_data['exit']:
@@ -103,7 +98,7 @@ def run_game(resources, dark_resources, images_res, dark_images_res):
         if GAME_OVER == update_game(game, board, input_data, columns, rows, resources):
             time.sleep(1)
             break
-        render_game(board_view, game_display, resources, dark_resources, game, board)
+        render_game(board_view, game_display, resources, game, board)
         clock.tick(FPS)
 
     pg.display.quit()
@@ -180,15 +175,23 @@ def click_out_of_card(geometry, point):
     return x + w <= point[0] <= x and y + h <= point[1] <= y
 
 
-def render_game(board_view, game_display, resources, dark_resources, game, board):
-    render_cards(board_view['card_views'], game_display, resources, dark_resources, game, board)
+def render_background(game_display):
+    game_display.fill(BLACK)
+
+
+def render_game(board_view, game_display, resources, game, board):
+    render_background(game_display)
+    draw_attempts = attempts(game)
+    draw_text(game_display, ATTEMPTS, 18, 50, 5)
+    draw_text(game_display, str(draw_attempts), 18, 100, 5)
+    render_cards(board_view['card_views'], game_display, resources, game, board)
     pg.display.update()
 
 
-def render_cards(card_views, game_display, resources, dark_resources, game, board):
+def render_cards(card_views, game_display, resources, game, board):
     for card_view in card_views:
         render_card(card_view, game_display, resources)
-        render_dark_card(card_view, game_display, dark_resources, game, board)
+        render_dark_card(card_view, game_display, game, board)
 
 
 def normalize_image(image):
@@ -209,21 +212,21 @@ def render_card(card_view, game_display, resources):
         pass
 
 
-def render_dark_card(card_view, game_display, dark_resources, game, board):
+def render_dark_card(card_view, game_display, game, board):
     if not engine.if_first_round(game) and engine.if_first_turn_in_round(game):
         card_1 = engine.get_active_card_2(game, board)
         card_2 = engine.get_active_card_1(game, board)
         if card_1 != card_2:
             if card_view['card']['value'] == card_1['value'] and card_view['card']['showed']:
-                dark_image_1 = card_view['dark_image']
+                dark_image_1 = card_view['image']
                 x = card_view['x']
                 y = card_view['y']
-                game_display.blit(dark_image_1, (x, y))
+                game_display.blit(grayscaled(dark_image_1, method=avg_gray), (x, y))
             if card_view['card']['value'] == card_2['value'] and card_view['card']['showed']:
-                dark_image_2 = card_view['dark_image']
+                dark_image_2 = card_view['image']
                 x = card_view['x']
                 y = card_view['y']
-                game_display.blit(dark_image_2, (x, y))
+                game_display.blit(grayscaled(dark_image_2, method=avg_gray), (x, y))
 
 
 def play_sound(resources, game, board):
@@ -235,25 +238,23 @@ def play_sound(resources, game, board):
             applause.play()
 
 
-def make_board_view(board, window_rows, images_res, dark_images_res):
+def make_board_view(board, window_rows, images_res):
     return {
         'board': board,
         'card_views': make_card_views(
             cards=board,
-            images=images_res,
-            dark_images=dark_images_res)
+            images=images_res)
     }
 
 
-def make_card_views(cards, images, dark_images):
+def make_card_views(cards, images):
     x = helper.START_POINT
     y = helper.START_POINT + 20
     card_views = []
     for row in cards:
         for card in row:
             img_1 = images[card['value']]
-            img_2 = dark_images[card['value']]
-            card_view = make_card_view(x, y, card, img_1, img_2)
+            card_view = make_card_view(x, y, card, img_1)
             card_views.append(card_view)
             x += (card_size + helper.START_POINT)
         y += (card_size + helper.START_POINT)
@@ -261,13 +262,12 @@ def make_card_views(cards, images, dark_images):
     return card_views
 
 
-def make_card_view(x, y, card, img_1, img_2):
+def make_card_view(x, y, card, img_1):
     return {
         'x': x,
         'y': y,
         'card': card,
         'image': img_1,
-        'dark_image': img_2
     }
 
 
@@ -276,10 +276,7 @@ def main():
     keys_list, images_list = prepare_resources()
     resources = load_resources(keys_list, images_list)
     images_res = make_images(resources, keys_list)
-    dark_keys, dark_img_list = prepare_dark_resources()
-    dark_resources = load_dark_resources(dark_keys, dark_img_list)
-    dark_images_res = make_dark_images(dark_resources, dark_keys)
-    run_game(resources, dark_resources, images_res, dark_images_res)
+    run_game(resources, images_res)
     pg.quit()
 
 

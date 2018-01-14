@@ -7,6 +7,7 @@ card_list = helper.get_cards()
 all_divisors = helper.calc_all_divisors(card_list)
 unique_divisors = helper.calc_pair_divisors(all_divisors)
 
+
 def build_row(columns):
     list_a = []
     for number in range(columns):
